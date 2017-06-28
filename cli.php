@@ -24,7 +24,7 @@ try {
         [8, 4],
         [8, 2],
     ]);
-    $star = $grid->getNodeByXY(0, 2);
+    $star = $grid->getNodeByXY(0, 0);
     $end  = $grid->getNodeByXY(6, 6);
 
     // 2.1 初始化算法
