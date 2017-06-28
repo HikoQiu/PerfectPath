@@ -59,10 +59,17 @@ class AStar
         $this->_diagonal = $diagonal;
     }
 
-    private function _checkAndInit()
+    private function _check(Node $start, Node $end)
+    {
+        if ($start->isBlock() || $end->isBlock()) {
+            throw new \Exception('起始节点不允许是障碍点', 1003);
+        }
+    }
+
+    private function _init()
     {
         empty($this->_heuristic) && $this->_heuristic = new Manhattan();
-        empty($this->_openList) && $this->_openList = new MinScoreHeap();
+        $this->_openList = new MinScoreHeap();
     }
 
     /**
@@ -74,7 +81,8 @@ class AStar
     public function calculatePath(Node $start, Node $end)
     {
         // 1.1 检查并初始化基本参数
-        $this->_checkAndInit();
+        $this->_check($start, $end);
+        $this->_init();
 
         // 2.1 设置初始值(从起点开始)
         $this->_openList->insert($start);
