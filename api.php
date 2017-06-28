@@ -58,8 +58,8 @@ function getParams()
         'diagonal' => DIAGONAL_NO,
         'blocks'   => [],
     ];
-    isset($_GET['start']) && $params['start'] = explode('_', $_GET['start']);
-    isset($_GET['end']) && $params['end'] = explode('_', $_GET['end']);
+    isset($_GET['start']) && $params['start'] = explode(',', $_GET['start']);
+    isset($_GET['end']) && $params['end'] = explode(',', $_GET['end']);
     isset($_GET['x_num']) && $params['x_num'] = intval($_GET['x_num']);
     isset($_GET['y_num']) && $params['y_num'] = intval($_GET['y_num']);
     isset($_GET['diagonal']) && $params['diagonal'] = intval($_GET['diagonal']);

@@ -7,12 +7,11 @@ const OP_SELECT_START = 1;
 const OP_SELECT_END = 2;
 const OP_SELECT_BLOCK = 3;
 
+// 是否走斜角
+const DIAGONAL_YES = 1;
+const DIAGONAL_NO = 2;
+
 var PfPath = {
-
-    help: function () {
-        alert('Help info.');
-    },
-
     Grid: {
         // 表格相关配置
         config: {
@@ -247,9 +246,42 @@ var PfPath = {
     },
 
     Service: {
-
         request: function () {
+            // 1.1 构建参数
+            var blocks = '';
+            for (var i in PfPath.Grid.config.blocks) {
+                blocks += PfPath.Grid.config.blocks[i].join(',') + ';';
+            }
+            var params = {
+                start: PfPath.Grid.config.startPoint.join(','),
+                end: PfPath.Grid.config.endPoint.join(','),
+                x_num: PfPath.Grid.config.xNum,
+                y_num: PfPath.Grid.config.yNum,
+                x_score: PfPath.Grid.config.xScore,
+                y_score: PfPath.Grid.config.yScore,
+                diagonal: PfPath.Grid.config.diagonal == true ? DIAGONAL_YES : DIAGONAL_NO
+            };
 
+            // 2.1 HTTP Get 请求
+            var http = new XMLHttpRequest();
+            http.open('GET', GlobalCfg.api + '?' + StringUtl.objToUrlQuery(params), false);
+            http.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            http.send();
+
+            // 3.1 解析响应
+            if (http.status != 200) {
+                alert('URL错误或服务器出错: ' + http.status);
+                return;
+            }
+
+            var res = JSON.parse(http.responseText);
+            if (res.code != 0) {
+                alert('操作失败: ' + res.msg);
+                return;
+            }
+
+            // 4.1 结果绘图
+            console.log(res.data.path_nodes, res.data.footprint);
         }
     }
 };
