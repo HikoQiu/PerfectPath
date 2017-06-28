@@ -4,11 +4,98 @@
     <meta charset="UTF-8">
     <title>最优路径 - PerfectPath</title>
     <link href="./static/css/style.css" rel="stylesheet">
+    <script src="./static/js/dom_utl.js"></script>
     <script src="./static/js/app.js"></script>
 </head>
 <body>
 
-<a href="javascript:PfPath.help();">Hello world.</a>
+<div class="layout-left">
+    <div id="conf-area">
+        <div>
+            <span>最优路径 PerfectPath.</span>
+        </div>
+        <br>
 
+        <br>
+
+        <div id="grid-conf">
+            <p>- 表格设置: </p>
+            <br>
+            <input type="text" name="x_num" id="x_num" placeholder="x 轴个数" value="10" class="input-s">
+            <span> ×️ </span>
+            <input type="text" name="y_num" id="y_num" placeholder="y 轴个数" value="10" class="input-s">
+        </div>
+
+        <br>
+
+        <div id="gird-ext-conf">
+            <p>- 格子宽高(权重/分数):</p>
+            <br>
+
+            <div>
+                <input type="text" name="x_score" id="x_score" placeholder="宽" value="10" class="input-s">
+                <span> ×️ </span>
+                <input type="text" name="y_score" id="y_score" placeholder="高" value="10" class="input-s">
+            </div>
+        </div>
+        <br>
+
+        <div>
+            <a href="javascript:PfPath.Grid.redrawGrid();" class="btn btn-primary">确定</a>
+        </div>
+
+        <div id="calculate-area">
+            <p>- 是否允许走斜角: </p>
+            <br>
+            <label class="radio-label">
+                <input type="radio" name="diagonal" value="1"> 允许
+            </label>
+            <span class="blk"></span>
+            <label>
+                <input type="radio" name="diagonal" value="2" checked> 不允许
+            </label>
+
+            <a href="javascript:void(0);" class="btn btn-succ" id="btn-calculate">计算</a>
+
+            <div class="clearfix"></div>
+        </div>
+    </div>
+
+</div><!-- .layout-left -->
+
+<div class="layout-right">
+    <div class="grid-container">
+        <div class="ops-select">
+
+            <div style="margin-top: 15px;">
+                <span>选择操作:  </span>&nbsp;
+                <span class="ops active" onclick="javascript: PfPath.Grid.setOp(1);">设置起点</span>
+                <span class="ops" onclick="javascript: PfPath.Grid.setOp(2);">设置终点</span>
+                <span class="ops" onclick="javascript: PfPath.Grid.setOp(3);">设置障碍</span>
+            </div>
+        </div>
+        <br>
+
+        <div id="grid">
+            <!--<div class="row">-->
+            <!--<div class="item"></div>-->
+            <!--<div class="item"></div>-->
+            <!--<div class="item"></div>-->
+            <!--<div class="item"></div>-->
+            <!--<div class="item"></div>-->
+            <!--<div class="item"></div>-->
+            <!--<div class="item"></div>-->
+            <!--<div class="item"></div>-->
+            <!--<div class="item"></div>-->
+            <!--<div class="item"></div>-->
+            <!--<div class="clearfix"></div>-->
+            <!--</div>-->
+        </div>
+    </div>
+</div> <!-- .layout-right -->
+
+<script type="application/javascript">
+    PfPath.Grid.init();
+</script>
 </body>
 </html>

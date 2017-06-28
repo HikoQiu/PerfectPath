@@ -40,6 +40,12 @@ class AStar
      */
     private $_diagonal = false;
 
+    /**
+     * 记录走过的节点
+     * @var array
+     */
+    private $_footprint = [];
+
     public function __construct(Grid $grid)
     {
         $this->_grid = $grid;
@@ -110,6 +116,9 @@ class AStar
             $curNode = $this->_openList->extract();
             $curNode->close();
 
+            // 记录节点被访问的顺序
+            $this->_footprint[] = $curNode;
+
             // 1.2 获取所有需要进行判断的相邻节点 & 判断和更新
             $judgeNodes = $this->_grid->getJudgeAdjacentNodes($curNode, $this->_diagonal);
             foreach ($judgeNodes as $node) {
@@ -167,5 +176,14 @@ class AStar
         }
         $list[] = $node;
         return array_reverse($list);
+    }
+
+    /**
+     * 获取被访问到的节点
+     * @return array
+     */
+    public function getFootprint()
+    {
+        return $this->_footprint;
     }
 }

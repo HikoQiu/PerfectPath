@@ -38,6 +38,7 @@ try {
 
     echo ResponseUtl::succ([
         'path_nodes' => Node::toPoints($pathNodes),
+        'footprint'  => Node::toPoints($astar->getFootprint()),
     ]);
 } catch (\Exception $e) {
     echo ResponseUtl::fail(ResponseUtl::CODE_FAIL, $e->getMessage());
