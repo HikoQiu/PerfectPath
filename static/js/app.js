@@ -299,19 +299,13 @@ var PfPath = {
         clearPath: function () {
             for (var key in this.result.pathNodes) {
                 var point = this.result.pathNodes[key];
-                if (this.isStartPoint(point) || this.isEndPoint(point)) {
-                    continue;
-                }
-                document.getElementById(this.genItemId(point[0], point[1])).className = 'item';
+                DomUtl.rmCls(document.getElementById(this.genItemId(point[0], point[1])), 'path-item');
                 delete this.result.pathNodes[key];
             }
 
             for (var key in this.result.footprint) {
                 var point = this.result.footprint[key];
-                if (this.isStartPoint(point) || this.isEndPoint(point)) {
-                    continue;
-                }
-                document.getElementById(this.genItemId(point[0], point[1])).className = 'item';
+                DomUtl.rmCls(document.getElementById(this.genItemId(point[0], point[1])), 'path-item-try');
                 delete this.result.footprint[key];
             }
         },
@@ -404,6 +398,7 @@ var PfPath = {
                 return;
             }
 
+            PfPath.Grid.clearPath();
             PfPath.Grid.result.pathNodes = res.data.path_nodes;
             PfPath.Grid.result.footprint = res.data.footprint;
 
