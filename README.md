@@ -1,3 +1,4 @@
+![drawpath.png](./static/img/drawpath.png)
 
 ### 使用方式
 
@@ -24,6 +25,8 @@ start   : int,int
 end     : int,int
 x_num   : int
 y_num   : int
+x_score : int // 小格子宽(或分数/权重)
+y_score : int // 小格子高(或分数/权重)
 diagonal: 1 // 允许走斜角, 1: 允许; 2: 不允许;
 blocks  : int,int;int,int;int,int // 障碍点
 ````
