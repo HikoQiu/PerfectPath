@@ -38,8 +38,6 @@ var DomUtl = {
      */
     rmCls: function (ele, cls) {
         ele.className = ele.className.replace(/(\s+)/gi, ' ');
-        console.log(cls, ele.className);
         ele.className = ele.className.replace(cls, '');
-        console.log(ele.className);
     }
 };

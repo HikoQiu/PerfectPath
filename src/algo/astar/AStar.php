@@ -160,6 +160,7 @@ class AStar
             $node->visit();
             $this->_openList->insert($node);
         }
+        $this->_openList->recoverFromCorruption();
     }
 
     /**

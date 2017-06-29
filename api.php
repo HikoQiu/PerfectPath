@@ -65,6 +65,7 @@ function getParams()
     isset($_GET['diagonal']) && $params['diagonal'] = intval($_GET['diagonal']);
     if (isset($_GET['blocks'])) {
         $blocks = array_filter(explode(';', $_GET['blocks']));
+        $blocks = array_filter($blocks);
         foreach ($blocks as &$item) {
             $item = explode(',', $item);
         }

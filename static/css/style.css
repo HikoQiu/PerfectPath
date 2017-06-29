@@ -237,7 +237,11 @@ html, body {
 }
 
 .path-item {
-    background: #2aa515;
+    background: #36ab60;
+}
+
+.path-item-try {
+    background: #aedfc8;
 }
 
 .block-item {

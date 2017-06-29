@@ -11,6 +11,8 @@ const OP_SELECT_BLOCK = 3;
 const DIAGONAL_YES = 1;
 const DIAGONAL_NO = 2;
 
+const FOOTPRINT_TIME = 100; // ms
+
 var PfPath = {
     Grid: {
         // 表格相关配置
@@ -30,6 +32,12 @@ var PfPath = {
             grid: null
         },
 
+        // 计算结果
+        result: {
+            pathNodes: [],
+            footprint: []
+        },
+
         // 当选选择的点的角色
         curOp: OP_SELECT_START,
 
@@ -40,6 +48,7 @@ var PfPath = {
             this.resetConfig();
             this.drawGrid();
         },
+
         /**
          * 获取页面配置
          * @returns {{}}
@@ -49,12 +58,13 @@ var PfPath = {
             this.config.yNum = parseInt(document.getElementById('y_num').value);
             this.config.xScore = parseInt(document.getElementById('x_score').value);
             this.config.yScore = parseInt(document.getElementById('y_score').value);
-            var diagonalRadios = document.getElementsByName('diagonal');
-            for (i = 0; i < diagonalRadios.length; i++) {
-                if (diagonalRadios[i].checked) {
-                    this.config.diagonal = parseInt(diagonalRadios[i].value) == 1;
-                }
-            }
+
+            // 重置所选配置
+            this.config.startPoint = [];
+            this.config.endPoint = [];
+            this.config.blocks = {};
+            this.result.pathNodes = [];
+            this.result.footprint = [];
             console.log("config: ", this.config);
         },
 
@@ -147,6 +157,15 @@ var PfPath = {
          * @param y
          */
         setStart: function (x, y) {
+            // 如果已经计算过路径, 则清除掉
+            if (this.result.pathNodes.length > 0) {
+                this.clearPath();
+            }
+            if (this.isEndPoint([x, y]) || this.isBlock(x, y)) {
+                alert('提示: 起点不允许落在终点或障碍点上.');
+                return;
+            }
+
             this.rmOldStart();
             this.config.startPoint = [x, y];
             DomUtl.addCls(document.getElementById(this.genItemId(x, y)), 'start-item');
@@ -167,6 +186,15 @@ var PfPath = {
          * @param y
          */
         setEnd: function (x, y) {
+            // 如果已经计算过路径, 则清除掉
+            if (this.result.pathNodes.length > 0) {
+                this.clearPath();
+            }
+            if (this.isStartPoint([x, y]) || this.isBlock(x, y)) {
+                alert('提示: 终点不允许落在起点或障碍点上.');
+                return;
+            }
+
             this.rmOldEnd();
             this.config.endPoint = [x, y];
             DomUtl.addCls(document.getElementById(this.genItemId(x, y)), 'end-item');
@@ -188,7 +216,17 @@ var PfPath = {
          * @param y
          */
         setBlock: function (x, y) {
-            if (typeof this.config.blocks[this.genBlockKey(x, y)] != "undefined") {
+            // 如果已经计算过路径, 则清除掉
+            if (this.result.pathNodes.length > 0) {
+                this.clearPath();
+            }
+
+            if (this.isStartPoint([x, y]) || this.isEndPoint([x, y])) {
+                alert('提示: 障碍点不允许落在起始点上.');
+                return;
+            }
+
+            if (this.isBlock(x, y)) {
                 this.rmBlock(x, y);
                 return;
             }
@@ -201,6 +239,10 @@ var PfPath = {
             var ele = document.getElementById(this.genItemId(x, y));
             DomUtl.rmCls(ele, 'block-item');
             delete this.config.blocks[this.genBlockKey(x, y)];
+        },
+
+        isBlock: function (x, y) {
+            return typeof this.config.blocks[this.genBlockKey(x, y)] != "undefined";
         },
 
         /**
@@ -240,9 +282,70 @@ var PfPath = {
          * 画出路径
          */
         drawPath: function () {
+            for (var key in this.result.pathNodes) {
+                var point = this.result.pathNodes[key];
+                if (this.isStartPoint(point) || this.isEndPoint(point)) {
+                    continue;
+                }
 
+                var ele = document.getElementById(this.genItemId(point[0], point[1]));
+                ele.className = 'item path-item';
+            }
         },
 
+        /**
+         * 清除路径
+         */
+        clearPath: function () {
+            for (var key in this.result.pathNodes) {
+                var point = this.result.pathNodes[key];
+                DomUtl.rmCls(document.getElementById(this.genItemId(point[0], point[1])), 'path-item');
+                delete this.result.pathNodes[key];
+            }
+
+            for (var key in this.result.footprint) {
+                var point = this.result.footprint[key];
+                DomUtl.rmCls(document.getElementById(this.genItemId(point[0], point[1])), 'path-item-try');
+            }
+            this.result.footprint = [];
+        },
+
+        /**
+         * 是否是起点
+         * @param point
+         * @returns {boolean}
+         */
+        isStartPoint: function (point) {
+            return (point[0] == this.config.startPoint[0]) && (point[1] == this.config.startPoint[1]);
+        },
+
+        /**
+         * 是否是终点
+         * @param point
+         * @returns {boolean}
+         */
+        isEndPoint: function (point) {
+            return (point[0] == this.config.endPoint[0]) && (point[1] == this.config.endPoint[1]);
+        },
+
+        /**
+         * 打印足迹
+         */
+        drawFootpath: function () {
+            if (this.result.footprint.length == 0) {
+                return;
+            }
+
+            for (var key in this.result.footprint) {
+                var point = this.result.footprint[key];
+                if (this.isStartPoint(point) || this.isEndPoint(point)) {
+                    continue;
+                }
+
+                var ele = document.getElementById(this.genItemId(point[0], point[1]));
+                ele.className = 'item path-item-try';
+            }
+        }
     },
 
     Service: {
@@ -252,6 +355,14 @@ var PfPath = {
             for (var i in PfPath.Grid.config.blocks) {
                 blocks += PfPath.Grid.config.blocks[i].join(',') + ';';
             }
+
+            // 获取 diagonal 的值
+            var diagonalRadios = document.getElementsByName('diagonal');
+            for (i = 0; i < diagonalRadios.length; i++) {
+                if (diagonalRadios[i].checked) {
+                    PfPath.Grid.config.diagonal = parseInt(diagonalRadios[i].value) == DIAGONAL_YES;
+                }
+            }
             var params = {
                 start: PfPath.Grid.config.startPoint.join(','),
                 end: PfPath.Grid.config.endPoint.join(','),
@@ -259,7 +370,8 @@ var PfPath = {
                 y_num: PfPath.Grid.config.yNum,
                 x_score: PfPath.Grid.config.xScore,
                 y_score: PfPath.Grid.config.yScore,
-                diagonal: PfPath.Grid.config.diagonal == true ? DIAGONAL_YES : DIAGONAL_NO
+                diagonal: PfPath.Grid.config.diagonal == true ? DIAGONAL_YES : DIAGONAL_NO,
+                blocks: blocks
             };
 
             // 2.1 HTTP Get 请求
@@ -281,7 +393,16 @@ var PfPath = {
             }
 
             // 4.1 结果绘图
-            console.log(res.data.path_nodes, res.data.footprint);
+            if (res.data.path_nodes.length == 0) {
+                alert('提示: 无法到达目的地.');
+                return;
+            }
+
+            PfPath.Grid.result.pathNodes = res.data.path_nodes;
+            PfPath.Grid.result.footprint = res.data.footprint;
+
+            PfPath.Grid.drawFootpath();
+            PfPath.Grid.drawPath();
         }
     }
 };
